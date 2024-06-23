@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-time Spell Checker</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #result { margin-top: 20px; }
+        #graph { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Real-time Spell Checker</h1>
+    <input type="text" id="inputText" placeholder="Enter a word or phrase">
+    <button onclick="checkSpelling()">Check</button>
+
+    <div id="result"></div>
+    <div id="graph">
+        <img id="graphImage" src="" alt="Turing Machine Graph" style="display: none;">
+    </div>
+
+    <script>
+        function checkSpelling() {
+            const text = $('#inputText').val();
+
+            $.ajax({
+                url: '/check',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ text: text }),
+                success: function(response) {
+                    $('#result').text(response.message);
+                    if (response.graph_path) {
+                        $('#graphImage').attr('src', response.graph_path).show();
+                    } else {
+                        $('#graphImage').hide();
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

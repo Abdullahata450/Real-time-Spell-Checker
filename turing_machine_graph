@@ -1,0 +1,24 @@
+digraph {
+	q0
+	q1
+	q2
+	q3
+	q4
+	q5
+	q6
+	q7
+	q_accept [shape=doublecircle]
+	q_reject
+	q0 -> q1 [label="a/a,R"]
+	q1 -> q2 [label="p/p,R"]
+	q2 -> q3 [label="p/p,R"]
+	q3 -> q4 [label="e/e,R"]
+	q4 -> q5 [label="l/l,R"]
+	q5 -> q6 [label="B/B,L"]
+	q6 -> q7 [label="l/p,L"]
+	q7 -> q7 [label="e/e,L"]
+	q7 -> q7 [label="p/p,L"]
+	q7 -> q_accept [label="a/a,N"]
+	corrected [label="Corrected Word: apple" color=lightgrey shape=box style=filled]
+	q_accept -> corrected [style=dashed]
+}
