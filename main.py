@@ -13,37 +13,29 @@ os.makedirs('static', exist_ok=True)
 def generate_turing_machine(misspelled_word, corrected_word):
     tm = graphviz.Digraph()
 
-    # Create initial and final states
-    tm.node('q0', shape='circle')
-    tm.node('q_accept', shape='doublecircle')
-    tm.node('q_halt', shape='doublecircle')
+    # Create states
+    states = ['q0', 'q_accept', 'q_halt', 'q_correct', 'q_compare', 'q_insert', 'q_delete']
+    for state in states:
+        tm.node(state, shape='doublecircle' if state in ['q_accept', 'q_halt'] else 'circle')
     
-    # Initialize current state
     current_state = 'q0'
     
-    # Process each character in the misspelled and corrected words
-    for i, (misspelled_char, corrected_char) in enumerate(zip(misspelled_word, corrected_word)):
-        next_state = f'q{i+1}'
-        move = 'R'  # Move right after processing each character
-        color = 'black' if misspelled_char == corrected_char else 'red'
-        transition_label = f'{misspelled_char}/{corrected_char},{move} ({"match" if misspelled_char == corrected_char else "mismatch"})'
-        tm.edge(current_state, next_state, label=transition_label, color=color)
-        current_state = next_state
-
-    # Handle the case where corrected word is longer than the misspelled word
-    if len(corrected_word) > len(misspelled_word):
-        for j in range(len(misspelled_word), len(corrected_word)):
-            next_state = f'q{j+1}'
-            tm.edge(current_state, next_state, label=f'B/{corrected_word[j]},R (insert)', color='blue')
-            current_state = next_state
-
-    # Handle the case where misspelled word is longer than the corrected word
-    if len(misspelled_word) > len(corrected_word):
-        for j in range(len(corrected_word), len(misspelled_word)):
-            next_state = f'q{j+1}'
-            tm.edge(current_state, next_state, label=f'{misspelled_word[j]}/B,R (delete)', color='green')
-            current_state = next_state
-
+    # Add transitions for comparison
+    for i in range(max(len(misspelled_word), len(corrected_word))):
+        if i < len(misspelled_word) and i < len(corrected_word):
+            if misspelled_word[i] == corrected_word[i]:
+                tm.edge(current_state, 'q_compare', label=f'{misspelled_word[i]}/{corrected_word[i]},R (match)', color='black')
+                current_state = 'q_compare'
+            else:
+                tm.edge(current_state, 'q_correct', label=f'{misspelled_word[i]}/{corrected_word[i]},R (mismatch)', color='red')
+                current_state = 'q_correct'
+        elif i >= len(misspelled_word):
+            tm.edge(current_state, 'q_insert', label=f'B/{corrected_word[i]},R (insert)', color='blue')
+            current_state = 'q_insert'
+        elif i >= len(corrected_word):
+            tm.edge(current_state, 'q_delete', label=f'{misspelled_word[i]}/B,R (delete)', color='green')
+            current_state = 'q_delete'
+    
     # Link the last state to the accept state
     tm.edge(current_state, 'q_accept', label='B/B,R (accept)', color='purple')
 
